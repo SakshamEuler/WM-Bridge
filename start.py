@@ -1,7 +1,6 @@
 import mysql.connector
 from start2 import subscriber
 import threading
-from multiprocessing import Process
 
 
 def createMySqlConnection():
