@@ -7,7 +7,6 @@ import time
 import uuid
 from dataclasses import asdict
 from typing import Dict, List, Union
-from publisher_thor import Publisher
 import json
 import mysql.connector
 
@@ -143,7 +142,7 @@ class ChargePoint:
         # while True:
             self.imei_id = imei
             message = await self._connection.recv()
-            LOGGER.info("%s: receive message %s", self.id, message)
+            LOGGER.info("%s: receive %s", self.id, message)
             mycursor = mydb.cursor()
             id = imei
             # mycursor.execute("INSERT INTO publisher (id, data) VALUES (%s, %s)", (id, message))
@@ -159,56 +158,64 @@ class ChargePoint:
             # await pub._start(imei,action)
 
             #############################################
-            ENDPOINT = "a4npr11hez19b-ats.iot.ap-south-1.amazonaws.com"
-            CLIENT_ID = "testDevice"
-            PATH_TO_CERTIFICATE = "cert.pem.crt"
-            PATH_TO_PRIVATE_KEY = "privateKey.pem.key"
-            PATH_TO_AMAZON_ROOT_CA_1 = "amazonRoot.pem"
-            TOPIC = imei+"/totcu"
-            
-            conn = mysql.connector.connect(user='root', password='root', host="localhost", database='MqttWeb')
+            if action == "a":
+                pass
+            else:
+                ENDPOINT = "a4npr11hez19b-ats.iot.ap-south-1.amazonaws.com"
+                CLIENT_ID = "testDevice"
+                PATH_TO_CERTIFICATE = "cert.pem.crt"
+                PATH_TO_PRIVATE_KEY = "privateKey.pem.key"
+                PATH_TO_AMAZON_ROOT_CA_1 = "amazonRoot.pem"
+                TOPIC = imei+"/totcu"
+                
+                # conn = mysql.connector.connect(user='root', password='root', host="localhost", database='MqttWeb')
 
-            cursor = conn.cursor()
-            sql = "select " + action + " from publisherOne where imei = %s"
-            cursor.execute(sql, (imei,))
-            record = cursor.fetchone()
+                # cursor = conn.cursor()
+                # sql = "select " + action + " from publisherOne where imei = %s"
+                # cursor.execute(sql, (imei,))
+                # record = cursor.fetchone()
 
-            event_loop_group = io.EventLoopGroup(1)
-            host_resolver = io.DefaultHostResolver(event_loop_group)
-            client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
-            mqtt_connection = mqtt_connection_builder.mtls_from_path(
-                        endpoint=ENDPOINT,
-                        cert_filepath=PATH_TO_CERTIFICATE,
-                        pri_key_filepath=PATH_TO_PRIVATE_KEY,
-                        client_bootstrap=client_bootstrap,
-                        ca_filepath=PATH_TO_AMAZON_ROOT_CA_1,
-                        client_id=CLIENT_ID,
-                        clean_session=False,
-                        keep_alive_secs=6
-                        )
-            print("Connecting to {} with client ID '{}'...".format(
-                    ENDPOINT, CLIENT_ID))
-            connect_future = mqtt_connection.connect()
-            connect_future.result()
-            print("Connected!")
-            print('Begin Publish')
+                event_loop_group = io.EventLoopGroup(1)
+                host_resolver = io.DefaultHostResolver(event_loop_group)
+                client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
+                mqtt_connection = mqtt_connection_builder.mtls_from_path(
+                            endpoint=ENDPOINT,
+                            cert_filepath=PATH_TO_CERTIFICATE,
+                            pri_key_filepath=PATH_TO_PRIVATE_KEY,
+                            client_bootstrap=client_bootstrap,
+                            ca_filepath=PATH_TO_AMAZON_ROOT_CA_1,
+                            client_id=CLIENT_ID,
+                            clean_session=False,
+                            keep_alive_secs=6
+                            )
+                print("Connecting to {} with client ID '{}'...".format(
+                        ENDPOINT, CLIENT_ID))
+                connect_future = mqtt_connection.connect()
+                connect_future.result()
+                print("Connected!")
+                print('Begin Publish')
 
-            raw_message = record[0]
-            raw_message = str(raw_message)
-            #
-            raw_message = bytes(raw_message, 'utf-8')
-            raw_message = binascii.hexlify(raw_message)
-            raw_message = str(raw_message)
-            raw_message = raw_message[2:len(raw_message)-1] + "*"
-            test = "ugfiygkfjhgaskdjhfvasd"
-            msg = {"CMD": raw_message}
-            mqtt_connection.publish(topic=TOPIC, payload=json.dumps(msg), qos=mqtt.QoS.AT_LEAST_ONCE)
-            print("Published: '" + json.dumps(message) + "' to the topic: " + TOPIC)
+                # raw_message = record[0]
+                raw_message = message
+                raw_message = str(raw_message)
+                
+                # only for start transaction
+                if(raw_message.find("transactionId")!=-1):
+                    raw_message = raw_message[:85] + raw_message[125:]
 
-            t.sleep(2)
-            print('Publish End')
-            disconnect_future = mqtt_connection.disconnect()
-            disconnect_future.result()
+                raw_message = bytes(raw_message, 'utf-8')
+                raw_message = binascii.hexlify(raw_message)
+                raw_message = str(raw_message)
+                raw_message = raw_message[2:len(raw_message)-1] + "*"
+                test = "ugfiygkfjhgaskdjhfvasd"
+                msg = {"CMD": raw_message}
+                mqtt_connection.publish(topic=TOPIC, payload=json.dumps(msg), qos=mqtt.QoS.AT_LEAST_ONCE)
+                print("Published: '" + json.dumps(msg) + "' to the topic: " + TOPIC)
+
+                t.sleep(2)
+                print('Publish End')
+                disconnect_future = mqtt_connection.disconnect()
+                disconnect_future.result()
             #############################################
 
             
@@ -440,5 +447,9 @@ class ChargePoint:
 
     async def _send(self, message):
         LOGGER.info("%s: send %s", self.id, message)
+        print(message + "::::::::")
         await self._connection.send(message)
-    
+
+    async def recv_from_steve(self):
+        response = await self._connection.recv()
+        print(response)

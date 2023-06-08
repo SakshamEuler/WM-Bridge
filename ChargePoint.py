@@ -2,10 +2,8 @@ import asyncio
 import logging
 import websockets
 import json
-# from mqtt_sub import transfer_data as td
 from ocpp.v16 import ChargePoint as cp
 from ocpp.v16 import call
-from ocpp.v16.enums import RegistrationStatus
 
 import mysql.connector
 
@@ -50,6 +48,7 @@ class ChargePoint(cp):
                 status = dict.get("status")
             )
         elif action == "MeterValues":
+            print(dict.get("meterValue"))
             return call.MeterValuesPayload(
                 connector_id = dict.get("connectorId"), meter_value = dict.get("meterValue"), transaction_id = dict.get("transsactionId")
             )
@@ -62,13 +61,13 @@ class ChargePoint(cp):
                 id_tag=dict.get("idTag"), meter_stop=dict.get("meterStop"), timestamp=dict.get("timestamp"), transaction_id=dict.get("transactionId")
             )
         else:
+            pass
             print("No appropriate action received...")
 
     def getDataFromDb(self, imei, action):
         conn = mysql.connector.connect(
         user='root', password='root', host="localhost", database='MqttWeb')
 
-        # sql_querry = "SELECT * FROM subscriber ORDER BY id DESC LIMIT 1"
         sql_querry = "select " + action + " from subscriberOne where imei = %s"
         
         cursor = conn.cursor()
