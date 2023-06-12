@@ -52,61 +52,16 @@ class Publisher:
         # Make the connect() call
         connect_future = mqtt_connection.connect()
 
-        # Future.result() waits until a result is available
         connect_future.result()
         print("Connected!")
-        # Publish message to server desired number of times.
-        # print('Begin Publish')
-        # for i in range (self.RANGE):
-        # raw_message = last_row[len(last_row)-1][1]
-        #####################################
-        # raw_message = record[0]
-        # raw_message = str(raw_message)
-        # #
-        # raw_message = bytes(raw_message, 'utf-8')
-        # raw_message = binascii.hexlify(raw_message)
-        # raw_message = str(raw_message)
-        # raw_message = raw_message[2:len(raw_message)-1] + "*"
-        # print(".........................................................")
-        # print(raw_message)
-        # # data = "{}".format(raw_message)
-        # message = {"CMD": "raw_message"}
-
-        # print(message)
-        # print(json.dumps(message))
-        # print("..........................................................")
-        # # msg = {"CMD": "abckjhasdfpiuqherwfkjbdfiugrrkfjjqiourgf"}
-        # mqtt_connection.publish(topic=TOPIC, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
-        # print("Published: '" + json.dumps(message) + "' to the topic: " + TOPIC)
-        # t.sleep(0.1)
-        # # print('Publish End')
-        # disconnect_future = mqtt_connection.disconnect()
-        # disconnect_future.result()
-        ####################################
         flag = False
         raw_message = record[0]
         raw_message = str(raw_message)
-        if 'Concur' in raw_message or 'Meter' in raw_message:
-            flag = True
-
-            print('\n\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG START +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n \n ')
-            print(raw_message)
         raw_message = bytes(raw_message, 'utf-8')
-        if flag: 
-            print(raw_message)
         raw_message = binascii.hexlify(raw_message)
-        if flag: 
-            print(raw_message)
         raw_message = str(raw_message)
-        if flag: 
-            print(raw_message)
         raw_message = raw_message[2:len(raw_message)-1] + "*"
-        if flag: 
-            print(raw_message)
         message = {"CMD": raw_message}
-        if flag: 
-            print(raw_message)
-            print('\n\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG END +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n \n ')
         mqtt_connection.publish(topic=TOPIC, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
         print("Published: '" + json.dumps(message) + "' to the topic: " + TOPIC)
         t.sleep(2)

@@ -55,10 +55,6 @@ def mqtt_sub(imei,q):
         mycursor = mydb.cursor()
 
         a = msg.payload
-
-                   
-        
-
         try:
 
             if b'"RSP"' in a:
@@ -115,7 +111,6 @@ def mqtt_sub(imei,q):
                     q.put(action)
                     print(f"put {action} in queue")
 
-                    time.sleep(2)
                 lock.release()
         except Exception as err:
             lock.release()
