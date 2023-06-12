@@ -48,7 +48,7 @@ def mqtt_sub(imei,q):
     lock = threading.Lock()
     def on_message(mosq, obj, msg):
 
-        lock.acquire()
+        
         print("on message")
         mycursor = mydb.cursor()
 
@@ -56,62 +56,64 @@ def mqtt_sub(imei,q):
 
         print(a)            
         
+        try:
+            if b'"RSP"' in a:
 
-        if b'"RSP"' in a:
+                lock.acquire()
+                # message = dict.get("RSP")
+                if a[8:9] == b'[':
 
-            # message = dict.get("RSP")
-            if a[8:9] == b'[':
+                    c = b''
+                    if (b'MeterValues' in a):
+                        flag = False
+                        for byte in a:
+                            byte_as_int = int(byte)
+                            byte_as_byte = bytes([byte_as_int])
+                            if (byte_as_byte == b'['):
+                                flag = True
+                            if (byte_as_byte == b'\\'):
+                                flag = False
+                                # c += byte_as_byte
+                            if (flag):
+                                c += byte_as_byte
+                    else:
+                        flag = False
+                        for byte in a:
+                            byte_as_int = int(byte)
+                            byte_as_byte = bytes([byte_as_int])
+                            if (byte_as_byte == b'['):
+                                flag = True
+                            if (byte_as_byte == b']'):
+                                flag = False
+                                c += byte_as_byte
+                            if (flag):
+                                c += byte_as_byte
 
-                c = b''
-                if (b'MeterValues' in a):
-                    flag = False
-                    for byte in a:
-                        byte_as_int = int(byte)
-                        byte_as_byte = bytes([byte_as_int])
-                        if (byte_as_byte == b'['):
-                            flag = True
-                        if (byte_as_byte == b'\\'):
-                            flag = False
-                            # c += byte_as_byte
-                        if (flag):
-                            c += byte_as_byte
-                else:
-                    flag = False
-                    for byte in a:
-                        byte_as_int = int(byte)
-                        byte_as_byte = bytes([byte_as_int])
-                        if (byte_as_byte == b'['):
-                            flag = True
-                        if (byte_as_byte == b']'):
-                            flag = False
-                            c += byte_as_byte
-                        if (flag):
-                            c += byte_as_byte
+                    c = c.decode()
+                    print("decoded: "+c)
+                    message = json.loads(c)
+                    action = message[2]
 
-                c = c.decode()
-                print("decoded: "+c)
-                message = json.loads(c)
-                action = message[2]
+                    id = imei
 
-                id = imei
+                    message = str(message)
+                    sql = "UPDATE subscriberOne SET "+ action +" = %s WHERE imei = %s"
+                    # print("..............................................")
+                    # print(message)
+                    # print(type(message))
+                    # print(action)
+                    # print("..............................................")
+                    val = (message, id)
+                    mycursor.execute(sql, val)
+                    mydb.commit()
+                    
+                    q.put(action)
+                    print(f"put {action} in queue")
 
-                message = str(message)
-                sql = "UPDATE subscriberOne SET "+ action +" = %s WHERE imei = %s"
-                # print("..............................................")
-                # print(message)
-                # print(type(message))
-                # print(action)
-                # print("..............................................")
-                val = (message, id)
-                mycursor.execute(sql, val)
-                mydb.commit()
-                
-                q.put(action)
-                print(f"put {action} in queue")
-
-                time.sleep(2)
-
-        lock.release()
+                lock.release()
+        except:
+            lock.release()
+            print("Exception ") 
         # time.sleep(7)
 
 
@@ -152,7 +154,7 @@ async def main(imei,q):
 
                 # action = multiple_processes.q.get()
                 startTime = time.perf_counter()
-                timeoutInterval = 120
+                timeoutInterval = 60 
 
                 while (time.perf_counter() - startTime) < timeoutInterval:
                 # for i in range(10):
