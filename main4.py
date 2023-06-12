@@ -159,7 +159,7 @@ async def main(imei,q):
 
                     # action = multiple_processes.q.get()
                     startTime = time.perf_counter()
-                    timeoutInterval = 60
+                    timeoutInterval = 120
 
                     while (time.perf_counter() - startTime) < timeoutInterval:
                     # for i in range(10):
@@ -175,7 +175,6 @@ async def main(imei,q):
                 print(f"wss connection closed: {imei}")  
     except Exception as err:
         print(f'err:  {err}')
-        os.execl(sys.executable, sys.executable, *sys.argv)
 
 def wss_steve(imei,q):
     asyncio.run(main(imei,q))
