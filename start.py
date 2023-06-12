@@ -5,9 +5,9 @@ import threading
 
 def createMySqlConnection():
     mydb = mysql.connector.connect(
-        host="localhost",
-        user='root',
-        password='root',
+        host="steve-db-cms.cqry44wn7lp3.ap-south-1.rds.amazonaws.com",
+        user='cms_admin',
+        password='s2VuUS34wxWO18yQtbkz',
         database="MqttWeb"
         )
     print("db connect inside start file")

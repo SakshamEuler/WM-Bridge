@@ -20,10 +20,10 @@ class Publisher:
     RANGE = 1
     
     async def _start(self, imei, action):
-        TOPIC = imei+"/totcu"
+        TOPIC = imei+"/commands"
         self.CLIENT_ID = imei
         conn = mysql.connector.connect(
-                user='root', password='root', host="localhost", database='MqttWeb')
+                user='cms_admin', password='s2VuUS34wxWO18yQtbkz', host="steve-db-cms.cqry44wn7lp3.ap-south-1.rds.amazonaws.com", database='MqttWeb')
 
         cursor = conn.cursor()
         # cursor.execute('select * from publisher')
@@ -83,13 +83,30 @@ class Publisher:
         # disconnect_future = mqtt_connection.disconnect()
         # disconnect_future.result()
         ####################################
+        flag = False
         raw_message = record[0]
         raw_message = str(raw_message)
+        if 'Concur' in raw_message or 'Meter' in raw_message:
+            flag = True
+
+            print('\n\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG START +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n \n ')
+            print(raw_message)
         raw_message = bytes(raw_message, 'utf-8')
+        if flag: 
+            print(raw_message)
         raw_message = binascii.hexlify(raw_message)
+        if flag: 
+            print(raw_message)
         raw_message = str(raw_message)
+        if flag: 
+            print(raw_message)
         raw_message = raw_message[2:len(raw_message)-1] + "*"
+        if flag: 
+            print(raw_message)
         message = {"CMD": raw_message}
+        if flag: 
+            print(raw_message)
+            print('\n\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG END +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n \n ')
         mqtt_connection.publish(topic=TOPIC, payload=json.dumps(message), qos=mqtt.QoS.AT_LEAST_ONCE)
         print("Published: '" + json.dumps(message) + "' to the topic: " + TOPIC)
         t.sleep(2)

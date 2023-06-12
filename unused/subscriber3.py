@@ -10,9 +10,9 @@ import asyncio
 
 
 mydb = mysql.connector.connect(
-host="localhost",
-user='root',
-password='root',
+host="steve-db-cms.cqry44wn7lp3.ap-south-1.rds.amazonaws.com",
+user='cms_admin',
+password='s2VuUS34wxWO18yQtbkz',
 database="MqttWeb"
 )
 print("db connect inside subscriber file")
@@ -20,8 +20,8 @@ print("db connect inside subscriber file")
 MQTT_PORT = 8883
 MQTT_KEEPALIVE_INTERVAL = 45
 imei = "866907056709165"
-# MQTT_TOPIC = "864394040833701/fromtcu"
-MQTT_TOPIC = imei+"/fromtcu"
+# MQTT_TOPIC = "864394040833701/data"
+MQTT_TOPIC = imei+"/data"
 # MQTT_TOPIC = "864394040833701/commands"
 MQTT_MSG = "hello MQTT"
 

@@ -23,9 +23,9 @@ import mysql.connector
 LOGGER = logging.getLogger("ocpp")
 
 mydb = mysql.connector.connect(
-        host="localhost",
-        user='root',
-        password='root',
+        host="steve-db-cms.cqry44wn7lp3.ap-south-1.rds.amazonaws.com",
+        user='cms_admin',
+        password='s2VuUS34wxWO18yQtbkz',
         database="MqttWeb"
         )
 
@@ -166,9 +166,9 @@ class ChargePoint:
                 PATH_TO_CERTIFICATE = "cert.pem.crt"
                 PATH_TO_PRIVATE_KEY = "privateKey.pem.key"
                 PATH_TO_AMAZON_ROOT_CA_1 = "amazonRoot.pem"
-                TOPIC = imei+"/totcu"
+                TOPIC = imei+"/commands"
                 
-                # conn = mysql.connector.connect(user='root', password='root', host="localhost", database='MqttWeb')
+                # conn = mysql.connector.connect(user='cms_admin', password='s2VuUS34wxWO18yQtbkz', host="steve-db-cms.cqry44wn7lp3.ap-south-1.rds.amazonaws.com", database='MqttWeb')
 
                 # cursor = conn.cursor()
                 # sql = "select " + action + " from publisherOne where imei = %s"
@@ -200,9 +200,6 @@ class ChargePoint:
                 raw_message = str(raw_message)
                 
                 # only for start transaction
-                if(raw_message.find("transactionId")!=-1):
-                    raw_message = raw_message[:85] + raw_message[125:]
-
                 raw_message = bytes(raw_message, 'utf-8')
                 raw_message = binascii.hexlify(raw_message)
                 raw_message = str(raw_message)
@@ -216,6 +213,7 @@ class ChargePoint:
                 print('Publish End')
                 disconnect_future = mqtt_connection.disconnect()
                 disconnect_future.result()
+                t.sleep(2)
             #############################################
 
             

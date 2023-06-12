@@ -66,7 +66,7 @@ class ChargePoint(cp):
 
     def getDataFromDb(self, imei, action):
         conn = mysql.connector.connect(
-        user='root', password='root', host="localhost", database='MqttWeb')
+        user='cms_admin', password='s2VuUS34wxWO18yQtbkz', host="steve-db-cms.cqry44wn7lp3.ap-south-1.rds.amazonaws.com", database='MqttWeb')
 
         sql_querry = "select " + action + " from subscriberOne where imei = %s"
         
